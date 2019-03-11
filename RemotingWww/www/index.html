@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+    <link href="ratchet.css" rel="stylesheet">
+    <link href="ratchet-theme.css" rel="stylesheet">
+
+    <script src="cordova.js"></script>
+    <script src="force.js"></script>
+
+    <script src="stub.js"></script>
+    <script src="VFRemote.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <script>
+
+
+
+
+
+        (function (UITheme) {
+            UITheme.getUITheme = function () {
+                return UserContext.uiTheme;
+            };
+        }(window.UITheme = window.UITheme || {}));
+
+        Visualforce.remoting.Manager.add(new $VFRM.RemotingProviderImpl({
+            "vf": {
+                "vid": "0667F00000983vY",
+                "xhr": false,
+                "dev": false,
+                "tst": false,
+                "dbg": false,
+                "tm": 1551858029787,
+                "ovrprm": false
+            },
+            "actions": {
+                "AccountRemoter": {
+                    "ms": [{
+                        "name": "getAccount",
+                        "len": 1,
+                        "ns": "",
+                        "ver": 44.0,
+                        "csrf": "VmpFPSxNakF4T1Mwd015MHdPVlF3TnpvME1Eb3lPUzQzT0RkYSxVWjVWN2gyVXFmRDNYQUp1NUthdzZiLFpqazJOVEV4"
+                    }, {
+                        "name": "getData",
+                        "len": 1,
+                        "ns": "",
+                        "ver": 44.0,
+                        "csrf": "VmpFPSxNakF4T1Mwd015MHdPVlF3TnpvME1Eb3lPUzQzT0RkYSxNYkhnbHZobkJGX19ucFJnRk5fanJ4LE5HRmlOalE1"
+                    }],
+                    "prm": 0
+                }
+            },
+            "service": "apexremote"
+        }));
+        /* Do login */
+        force.login(
+            function () {
+                console.log("Auth succeeded");
+                showUsersList();
+            },
+            function (error) {
+                console.log("Auth failed: " + error);
+            }
+        );
+
+        /* This method will render a list of users from current salesforce org */
+        var showUsersList = function () {
+
+            fetchRecords(function (data) {
+                var users = data.records;
+
+                var listItemsHtml = '';
+                for (var i = 0; i < users.length; i++) {
+                    listItemsHtml += ('<li class="table-view-cell"><div class="media-body">' + users[i].Name + '</div></li>');
+                }
+
+                //document.querySelector('#users').innerHTML = listItemsHtml;
+            })
+        }
+
+        /* This method will fetch a list of user records from salesforce. 
+        Just change the soql query to fetch another sobject. */
+        var fetchRecords = function (successHandler) {
+            var soql = 'SELECT Id, Name FROM User LIMIT 10';
+            force.query(soql, successHandler, function (error) {
+                alert('Failed to fetch users: ' + error);
+            });
+        };
+
+        function debugApp(){
+            console.log("hey");
+            console.log("visualforce",Visualforce);
+            console.log("visualforce");
+            debugger;
+
+            console.log( force.getAccessToken());
+
+            Visualforce.remoting.oauthAccessToken = force.getAccessToken().access_token;
+
+            Visualforce.remoting.Manager.invokeAction(
+                'AccountRemoter.getData',
+                'hey', 
+                function(result, event){
+                    alert('result' + result);
+                }, 
+                {escape: true}
+            );
+        }
+    </script>
+</head>
+
+<body>
+
+        <button onclick="debugApp()">debug application</button>
+
+    <!-- <ul id="users" class="table-view content">
+
+    </ul> -->
+
+    <button onclick="debugApp()">debug application</button>
+
+</body>
+
+</html>
